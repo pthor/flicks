@@ -8,6 +8,7 @@
 
 import UIKit
 import AFNetworking
+import MBProgressHUD
 
 class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
     
@@ -17,14 +18,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     override func viewDidLoad() {
         super.viewDidLoad()
         moviesTableView.rowHeight = 250.0
-        Movie.fetchNowPlaying({ (movies) -> Void in
-              self.movies = movies
-              print("\(movies)")
-              self.moviesTableView.reloadData()
-            })
-            { (error) -> Void in
-                print("Error getting movies")
-        }
+        loadMoviesFromNetowrk()
+        
     }
     
     func tableView(tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -74,6 +69,27 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         detailViewController.movie = movie
         print("prepare for seque")
     }
+    
+    func loadMoviesFromNetowrk()
+    {
+        // Display HUD right before the request is made
+        let hud = MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+        hud.labelText = "Fetching flicks";
+        Movie.fetchNowPlaying({ (movies) -> Void in
+              self.movies = movies
+              print("\(movies)")
+              //sad I have to put in a delay just to show the progress indicator
+              sleep(1)
+              MBProgressHUD.hideHUDForView(self.view, animated: true)
+              self.moviesTableView.reloadData()
+            })
+            { (error) -> Void in
+                sleep(1)
+                MBProgressHUD.hideHUDForView(self.view, animated: true)
+                print("Error getting movies")
+            }
+    }
+
 
 }
 
