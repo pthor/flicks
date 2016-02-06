@@ -15,9 +15,18 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     private var movies = [Movie]()
 
     @IBOutlet weak var moviesTableView: UITableView!
+    @IBOutlet weak var networkErrorNotificationView: UIView!
+    
+    let posterBaseUrl = "http://image.tmdb.org/t/p/w780"
+    let posterSmallBaseUrl = "http://image.tmdb.org/t/p/w92"
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        networkErrorNotificationView.hidden = true
         moviesTableView.rowHeight = 250.0
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: "refrechMoviesFromNetowrk:", forControlEvents: UIControlEvents.ValueChanged)
+        moviesTableView.insertSubview(refreshControl, atIndex: 0)
         loadMoviesFromNetowrk()
         
     }
@@ -29,32 +38,12 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithIdentifier(
         "com.codepath.exampleCell")! as! MyCell
+        //clear out any old junk
+        cell.postImageView.image = nil
         let movie = movies[indexPath.row]
         if let posterPath = movie.backdropPath{
-            let posterBaseUrl = "http://image.tmdb.org/t/p/w500"
-            let posterUrl = posterBaseUrl + posterPath
-            let imageRequest = NSURLRequest(URL: NSURL(string: posterUrl)!)
-            cell.postImageView.setImageWithURLRequest(
-                imageRequest,
-                placeholderImage: nil,
-                success: { (imageRequest, imageResponse, image) -> Void in
-                    
-                    // imageResponse will be nil if the image is cached
-                    if imageResponse != nil {
-                        print("Image was NOT cached, fade in image")
-                        cell.postImageView.alpha = 0.0
-                        cell.postImageView.image = image
-                        UIView.animateWithDuration(0.3, animations: { () -> Void in
-                            cell.postImageView.alpha = 1.0
-                        })
-                    } else {
-                        print("Image was cached so just update the image")
-                        cell.postImageView.image = image
-                    }
-                },
-                failure: { (imageRequest, imageResponse, error) -> Void in
-                    // do something for the failure condition
-            })
+            //let posterUrl = posterBaseUrl + posterPath
+            loadImageForCell(cell,posterPath:  posterPath)
         }
         cell.myCustomLabel.text = "\(movie.title!)"
         return cell
@@ -68,6 +57,48 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         let detailViewController = segue.destinationViewController as! DetailViewController
         detailViewController.movie = movie
         print("prepare for seque")
+    }
+    
+    func loadImageForCell(cell: MyCell, posterPath: String){
+        
+        let smallImageRequest = NSURLRequest(URL: NSURL(string: posterSmallBaseUrl + posterPath)!)
+        let largeImageRequest = NSURLRequest(URL: NSURL(string: posterBaseUrl + posterPath)!)
+        let myImageView = cell.postImageView
+        
+        myImageView.setImageWithURLRequest(
+            smallImageRequest,
+            placeholderImage: nil,
+            success: { (smallImageRequest, smallImageResponse, smallImage) -> Void in
+                
+                // smallImageResponse will be nil if the smallImage is already available
+                // in cache (might want to do something smarter in that case).
+                myImageView.alpha = 0.0
+                myImageView.image = smallImage;
+                
+                UIView.animateWithDuration(0.3, animations: { () -> Void in
+                    
+                    myImageView.alpha = 1.0
+                    
+                    }, completion: { (sucess) -> Void in
+                        
+                        // The AFNetworking ImageView Category only allows one request to be sent at a time
+                        // per ImageView. This code must be in the completion block.
+                        myImageView.setImageWithURLRequest(
+                            largeImageRequest,
+                            placeholderImage: smallImage,
+                            success: { (largeImageRequest, largeImageResponse, largeImage) -> Void in
+                                
+                                myImageView.image = largeImage;
+                                
+                            },
+                            failure: { (request, response, error) -> Void in
+                                self.networkErrorNotificationView.hidden = false
+                        })
+                })
+            },
+            failure: { (request, response, error) -> Void in
+                self.networkErrorNotificationView.hidden = false
+        })
     }
     
     func loadMoviesFromNetowrk()
@@ -86,8 +117,33 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
             { (error) -> Void in
                 sleep(1)
                 MBProgressHUD.hideHUDForView(self.view, animated: true)
+                self.networkErrorNotificationView.hidden = false
+
                 print("Error getting movies")
             }
+    }
+    
+    func refrechMoviesFromNetowrk(refreshControl: UIRefreshControl)
+    {
+        // Display HUD right before the request is made
+        let hud = MBProgressHUD.showHUDAddedTo(self.view, animated: true)
+        hud.labelText = "Fetching flicks";
+        Movie.fetchNowPlaying({ (movies) -> Void in
+            self.movies = movies
+            print("\(movies)")
+            //sad I have to put in a delay just to show the progress indicator
+            sleep(1)
+            MBProgressHUD.hideHUDForView(self.view, animated: true)
+            refreshControl.endRefreshing()
+            self.moviesTableView.reloadData()
+            })
+            { (error) -> Void in
+                sleep(1)
+                MBProgressHUD.hideHUDForView(self.view, animated: true)
+                self.networkErrorNotificationView.hidden = false
+                
+                print("Error getting movies")
+        }
     }
 
 

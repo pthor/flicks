@@ -13,17 +13,25 @@ class DetailViewController: UIViewController {
     @IBOutlet weak var posterimageView: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var overviewLabel: UILabel!
+    @IBOutlet weak var networkErrorNotificationView: UIView!
+    
+    
+    let posterBaseUrl = "http://image.tmdb.org/t/p/w780"
+    let posterSmallBaseUrl = "http://image.tmdb.org/t/p/w92"
     
     var movie: Movie!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        networkErrorNotificationView.hidden = true
         print(movie.title)
         overviewLabel.text = movie.overview!
         titleLabel.text = movie.title
         
         if let posterPath = movie.posterPath{
-            let posterBaseUrl = "http://image.tmdb.org/t/p/w500"
+            
+            loadPostImageAtPath(posterPath)
+            
             let posterUrl = posterBaseUrl + posterPath
             let imageRequest = NSURLRequest(URL: NSURL(string: posterUrl)!)
             posterimageView.setImageWithURLRequest(
@@ -45,10 +53,53 @@ class DetailViewController: UIViewController {
                     }
                 },
                 failure: { (imageRequest, imageResponse, error) -> Void in
+                    self.networkErrorNotificationView.hidden = false
                     // do something for the failure condition
             })
         }
 
+    }
+    
+    func loadPostImageAtPath(posterPath: String){
+        
+        let smallImageRequest = NSURLRequest(URL: NSURL(string: posterSmallBaseUrl + posterPath)!)
+        let largeImageRequest = NSURLRequest(URL: NSURL(string: posterBaseUrl + posterPath)!)
+        let myImageView = posterimageView
+        
+        myImageView.setImageWithURLRequest(
+            smallImageRequest,
+            placeholderImage: nil,
+            success: { (smallImageRequest, smallImageResponse, smallImage) -> Void in
+                
+                // smallImageResponse will be nil if the smallImage is already available
+                // in cache (might want to do something smarter in that case).
+                myImageView.alpha = 0.0
+                myImageView.image = smallImage;
+                
+                UIView.animateWithDuration(0.3, animations: { () -> Void in
+                    
+                    myImageView.alpha = 1.0
+                    
+                    }, completion: { (sucess) -> Void in
+                        
+                        // The AFNetworking ImageView Category only allows one request to be sent at a time
+                        // per ImageView. This code must be in the completion block.
+                        myImageView.setImageWithURLRequest(
+                            largeImageRequest,
+                            placeholderImage: smallImage,
+                            success: { (largeImageRequest, largeImageResponse, largeImage) -> Void in
+                                
+                                myImageView.image = largeImage;
+                                
+                            },
+                            failure: { (request, response, error) -> Void in
+                                self.networkErrorNotificationView.hidden = false
+                        })
+                })
+            },
+            failure: { (request, response, error) -> Void in
+                self.networkErrorNotificationView.hidden = false
+        })
     }
 
 }
