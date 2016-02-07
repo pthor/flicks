@@ -52,6 +52,7 @@
 				28335533DF1F5AEA1E65428C /* Pods-Flicks.release.xcconfig */,
 			);
 			name = Pods;
+			path = ..;
 			sourceTree = "<group>";
 		};
 		B7AF26DFA580FBE4B24F5C7A /* Frameworks */ = {
@@ -67,7 +68,6 @@
 			children = (
 				DA17E6361C61B462000F73C0 /* Flicks */,
 				DA17E6351C61B462000F73C0 /* Products */,
-				69B63788242E141C64C7CBCB /* Pods */,
 				B7AF26DFA580FBE4B24F5C7A /* Frameworks */,
 			);
 			sourceTree = "<group>";
@@ -106,6 +106,7 @@
 		DA17E64A1C62662B000F73C0 /* Controllers */ = {
 			isa = PBXGroup;
 			children = (
+				69B63788242E141C64C7CBCB /* Pods */,
 				DA17E6391C61B462000F73C0 /* ViewController.swift */,
 				DAAEAAA41C646D9F001B522C /* DetailViewController.swift */,
 			);
