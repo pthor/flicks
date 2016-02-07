@@ -20,6 +20,7 @@ class Movie {
     var posterPath: String?
     var backdropPath: String?
     var rating: Double?
+    var movieId: Int?
     
     init(jsonResult: NSDictionary) {
         title = jsonResult["title"] as? String
@@ -27,7 +28,8 @@ class Movie {
         posterPath = jsonResult["poster_path"] as? String
         backdropPath = jsonResult["backdrop_path"] as? String
         rating = jsonResult["vote_average"] as? Double
-        print(rating)
+        movieId = jsonResult["id"] as? Int
+        print("movieId \(movieId)")
     }
     
     class func fetchNowPlaying(successCallback: ([Movie]) -> Void, error: ((NSError?) -> Void)?) {
@@ -45,6 +47,29 @@ class Movie {
                     errorCallback(requestError)
                 }
         })
+    }
+    
+    func getPreviewUrl(successCallback: (String?) -> Void, error: ((NSError?) -> Void)?)
+    {
+        let manager = AFHTTPRequestOperationManager()
+        let previewUrl = "https://api.themoviedb.org/3/movie/\(self.movieId!)/videos?api_key=\(apiKey)"
+        print(previewUrl)
+        manager.GET(previewUrl, parameters: [], success: { (operation ,responseObject) -> Void in
+            print(responseObject["results"])
+            if let results = responseObject["results"] as? NSArray {
+                var youtubeUrl:String? = nil
+                if let youtubeId = results[0]["key"] as! String?{
+                    youtubeUrl = "https://www.youtube.com/embed/\(youtubeId)"
+                }
+                successCallback(youtubeUrl)
+            }
+            }, failure: { (operation, requestError) -> Void in
+                if let errorCallback = error {
+                    errorCallback(requestError)
+                }
+        })
+
+    
     }
     
     class func searchMovies(searchText:String,successCallback: ([Movie]) -> Void,

@@ -14,6 +14,7 @@ class DetailViewController: UIViewController {
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var overviewLabel: UILabel!
     @IBOutlet weak var networkErrorNotificationView: UIView!
+    @IBOutlet weak var trailerWebView: UIWebView!
     
     
     let posterBaseUrl = "http://image.tmdb.org/t/p/w780"
@@ -31,6 +32,21 @@ class DetailViewController: UIViewController {
         if let posterPath = movie.posterPath{
             
             loadPostImageAtPath(posterPath)
+            
+            movie.getPreviewUrl({ (youtubeUrl) -> Void in
+                print("got youtube url \(youtubeUrl)")
+                self.trailerWebView.allowsInlineMediaPlayback = true
+                self.trailerWebView.opaque = false;
+                self.trailerWebView.backgroundColor = UIColor.clearColor()
+                
+                let embedText = "<html><head><style>body, html, iframe { margin: 0; padding: 0; background-color: black; }</style></head><body><iframe width=\"\(self.trailerWebView.frame.width)\" height=\"\(self.trailerWebView.frame.height)\" src=\"\(youtubeUrl!)?playsinline=1\" frameborder=\"0\" allowfullscreen></iframe></body></html>"
+                print(embedText)
+                self.trailerWebView.loadHTMLString(embedText, baseURL: nil)
+                
+
+            }, error: { (error) -> Void in
+                print("did not get youtube url")
+            })
             
             let posterUrl = posterBaseUrl + posterPath
             let imageRequest = NSURLRequest(URL: NSURL(string: posterUrl)!)

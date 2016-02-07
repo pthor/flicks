@@ -25,6 +25,11 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             NSFontAttributeName : UIFont(name: "HelveticaNeue-CondensedBlack", size: 21.0)!]
         
         UINavigationBar.appearance().tintColor = UIColor.whiteColor()
+        
+        
+        window = UIWindow(frame: UIScreen.mainScreen().bounds)
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        let nowPlayingNavigationController = storyboard.instantiateViewControllerWithIdentifier("MoviesNavigationController") as! UINavigationController
 
 
         return true

@@ -175,6 +175,11 @@
                                 <color key="backgroundColor" red="0.092117706339999994" green="0.093360981930000003" blue="0.38389295210000002" alpha="1" colorSpace="calibratedRGB"/>
                                 <color key="tintColor" cocoaTouchSystemColor="lightTextColor"/>
                             </view>
+                            <webView opaque="NO" alpha="0.94999999999999996" contentMode="scaleToFill" id="xiG-n7-rLd">
+                                <rect key="frame" x="40" y="149" width="240" height="128"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMinX="YES" widthSizable="YES" flexibleMaxX="YES" heightSizable="YES" flexibleMaxY="YES"/>
+                                <color key="backgroundColor" red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="calibratedRGB"/>
+                            </webView>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     </view>
@@ -184,6 +189,7 @@
                         <outlet property="overviewLabel" destination="Bw3-DF-FSa" id="qpK-iQ-tvf"/>
                         <outlet property="posterimageView" destination="ejZ-YK-CnV" id="LYd-fi-7uG"/>
                         <outlet property="titleLabel" destination="Zcf-zO-90A" id="kV0-Cy-UWT"/>
+                        <outlet property="trailerWebView" destination="xiG-n7-rLd" id="zIc-cB-WhI"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="idc-3D-6Na" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -193,7 +199,7 @@
         <!--Navigation Controller-->
         <scene sceneID="NFW-Sh-P1u">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" id="AG8-CJ-a0t" sceneMemberID="viewController">
+                <navigationController storyboardIdentifier="MoviesNavigationController" automaticallyAdjustsScrollViewInsets="NO" id="AG8-CJ-a0t" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" alpha="0.5" contentMode="scaleToFill" id="57w-Y8-paP">
                         <rect key="frame" x="0.0" y="0.0" width="320" height="44"/>
