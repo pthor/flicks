@@ -10,9 +10,9 @@ import UIKit
 import AFNetworking
 import MBProgressHUD
 
-class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
+class MoviesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate {
     
-    private var movies = [Movie]()
+    var movies = [Movie]()
 
     @IBOutlet weak var moviesTableView: UITableView!
     @IBOutlet weak var networkErrorNotificationView: UIView!
@@ -22,6 +22,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     let posterBaseUrl = "http://image.tmdb.org/t/p/w780"
     let posterSmallBaseUrl = "http://image.tmdb.org/t/p/w92"
+    var endPoint = "now_playing"
     let movieRefreshControl = UIRefreshControl()
     
     
@@ -155,7 +156,12 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         // Display HUD right before the request is made
         let hud = MBProgressHUD.showHUDAddedTo(self.view, animated: true)
         hud.labelText = "Fetching flicks";
-        Movie.fetchNowPlaying(onMovieFetchSuccess, error: onMovieFetchError)
+        if(self.endPoint == "top_rated"){
+            Movie.fetchTopRated(onMovieFetchSuccess, error: onMovieFetchError)
+
+        }else{
+            Movie.fetchNowPlaying(onMovieFetchSuccess, error: onMovieFetchError)
+        }
     }
     
     func searchMovies(searchText:String)

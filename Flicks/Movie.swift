@@ -10,7 +10,8 @@ import AFNetworking
 
 //private let params = ["api-key": "53eb9541b4374660d6f3c0001d6249ca:19:70900879"]
 private let apiKey = "a07e22bc18f5cb106bfe4cc1f83ad8ed"
-private let nowPlyaingUrl = "https://api.themoviedb.org/3/movie/now_playing?api_key=\(apiKey)"
+private let nowPlayingUrl = "https://api.themoviedb.org/3/movie/now_playing?api_key=\(apiKey)"
+private let topRatedUrl = "https://api.themoviedb.org/3/movie/top_rated?api_key=\(apiKey)"
 private let searchMoviesUrl = "http://api.themoviedb.org/3/search/movie?api_key=\(apiKey)"
 
 
@@ -34,7 +35,24 @@ class Movie {
     
     class func fetchNowPlaying(successCallback: ([Movie]) -> Void, error: ((NSError?) -> Void)?) {
         let manager = AFHTTPRequestOperationManager()
-        manager.GET(nowPlyaingUrl, parameters: [], success: { (operation ,responseObject) -> Void in
+        manager.GET(nowPlayingUrl, parameters: [], success: { (operation ,responseObject) -> Void in
+            if let results = responseObject["results"] as? NSArray {
+                var movies: [Movie] = []
+                for result in results as! [NSDictionary] {
+                    movies.append(Movie(jsonResult: result))
+                }
+                successCallback(movies)
+            }
+            }, failure: { (operation, requestError) -> Void in
+                if let errorCallback = error {
+                    errorCallback(requestError)
+                }
+        })
+    }
+    
+    class func fetchTopRated(successCallback: ([Movie]) -> Void, error: ((NSError?) -> Void)?) {
+        let manager = AFHTTPRequestOperationManager()
+        manager.GET(topRatedUrl, parameters: [], success: { (operation ,responseObject) -> Void in
             if let results = responseObject["results"] as? NSArray {
                 var movies: [Movie] = []
                 for result in results as! [NSDictionary] {
