@@ -49,11 +49,13 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     func tableView(tableView: UITableView, didselectRowAtIndexPath indexPath: NSIndexPath) {
         let cell = self.moviesTableView.cellForRowAtIndexPath(indexPath) as! MyCell
         cell.blurEffectView.alpha = 1.0
+        cell.highlighted = true
     }
     
     func tableView(tableView: UITableView, didDeselectRowAtIndexPath indexPath: NSIndexPath) {
         let cell = self.moviesTableView.cellForRowAtIndexPath(indexPath) as! MyCell
         cell.blurEffectView.alpha = 0.8
+        cell.highlighted = false
     }
     
     func tableView(tableView: UITableView, cellForRowAtIndexPath indexPath: NSIndexPath) -> UITableViewCell {
